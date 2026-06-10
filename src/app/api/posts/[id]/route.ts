@@ -21,7 +21,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
 
     const { id } = await params;
     const body = await req.json();
-    const { title, slug: rawSlug, content, excerpt, categoryId, featuredImage, status } = body;
+    const { title, slug: rawSlug, content, excerpt, categoryId, featuredImage, status, author } = body;
 
     const existing = await db.select().from(posts).where(eq(posts.id, Number(id))).limit(1);
     if (!existing[0]) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -41,6 +41,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
         slug,
         content: content ?? existing[0].content,
         excerpt: excerpt !== undefined ? excerpt || null : existing[0].excerpt,
+        author: author !== undefined ? author || null : existing[0].author,
         categoryId: categoryId !== undefined ? (categoryId ? Number(categoryId) : null) : existing[0].categoryId,
         featuredImage: featuredImage !== undefined ? featuredImage || null : existing[0].featuredImage,
         status: willPublish ? "published" : "draft",

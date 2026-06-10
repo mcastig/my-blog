@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const body = await req.json();
-    const { title, slug: rawSlug, content, excerpt, categoryId, featuredImage, status } = body;
+    const { title, slug: rawSlug, content, excerpt, categoryId, featuredImage, status, author } = body;
 
     if (!title) return NextResponse.json({ error: "Title is required" }, { status: 400 });
 
@@ -44,6 +44,7 @@ export async function POST(req: NextRequest) {
         slug,
         content: content ?? "",
         excerpt: excerpt || null,
+        author: author || null,
         categoryId: categoryId ? Number(categoryId) : null,
         featuredImage: featuredImage || null,
         status: status === "published" ? "published" : "draft",
