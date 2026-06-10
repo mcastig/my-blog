@@ -1,11 +1,12 @@
 import { db } from "@/lib/db";
-import { posts, categories } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
+import { posts, categories, comments } from "@/lib/db/schema";
+import { eq, and, desc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
 import Image from "next/image";
 import Link from "next/link";
 import { PostContent } from "@/components/blog/PostContent/PostContent";
+import { CommentSection } from "@/components/blog/CommentSection/CommentSection";
 import type { Metadata } from "next";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -42,6 +43,12 @@ export default async function PostPage({ params }: Props) {
   if (!result[0]) notFound();
 
   const { posts: post, categories: category } = result[0];
+
+  const postComments = await db
+    .select()
+    .from(comments)
+    .where(and(eq(comments.postId, post.id), eq(comments.status, "approved")))
+    .orderBy(desc(comments.createdAt));
 
   return (
     <article className="max-w-2xl mx-auto px-6 py-16">
@@ -89,7 +96,9 @@ export default async function PostPage({ params }: Props) {
 
       <PostContent content={post.content} />
 
-      <div className="mt-16 pt-8 border-t border-[var(--color-border)]">
+      <CommentSection postId={post.id} initialComments={postComments} />
+
+      <div className="mt-8 pt-8 border-t border-[var(--color-border)]">
         <Link
           href="/"
           className="text-md text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors"
