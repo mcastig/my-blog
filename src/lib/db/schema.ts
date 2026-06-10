@@ -15,6 +15,7 @@ export const posts = pgTable("posts", {
   content: text("content").notNull().default(""),
   excerpt: text("excerpt"),
   categoryId: integer("category_id").references(() => categories.id, { onDelete: "set null" }),
+  author: varchar("author", { length: 100 }),
   featuredImage: varchar("featured_image", { length: 500 }),
   status: varchar("status", { length: 20 }).notNull().default("draft"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
