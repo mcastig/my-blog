@@ -15,6 +15,7 @@ export function AdminNav({ username, firstName, lastName }: { username: string; 
   const links = [
     { href: "/admin", label: "Dashboard" },
     { href: "/admin/categories", label: "Categories" },
+    { href: "/admin/comments", label: "Comments" },
     { href: "/admin/posts/new", label: "New Post" },
   ];
 
