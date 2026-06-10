@@ -1,5 +1,7 @@
 "use client";
 
+import { createPortal } from "react-dom";
+
 type Props = {
   title: string;
   description?: string;
@@ -17,7 +19,7 @@ export function ConfirmModal({
   onConfirm,
   onCancel,
 }: Props) {
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
       <div className="absolute inset-0 bg-black/40" onClick={onCancel} />
       <div className="relative z-10 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg shadow-xl w-full max-w-sm p-6">
@@ -44,6 +46,7 @@ export function ConfirmModal({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
