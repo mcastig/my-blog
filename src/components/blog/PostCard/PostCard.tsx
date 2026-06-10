@@ -38,6 +38,8 @@ export function PostCard({ post, priority = false }: { post: PostWithCategory; p
         <time dateTime={post.publishedAt?.toISOString()}>
           {format(post.publishedAt ?? post.createdAt, "MMMM d, yyyy")}
         </time>
+        {post.author && <span>·</span>}
+        {post.author && <span>{post.author}</span>}
       </div>
       <Link href={`/${post.slug}`}>
         <h2 className="text-xl font-bold tracking-tight leading-snug group-hover:opacity-60 transition-opacity">

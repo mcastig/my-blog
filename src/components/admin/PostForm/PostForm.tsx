@@ -18,6 +18,7 @@ export function PostForm({ categories, post }: Props) {
 
   const [title, setTitle] = useState(post?.title ?? "");
   const [slug, setSlug] = useState(post?.slug ?? "");
+  const [author, setAuthor] = useState(post?.author ?? "");
   const [excerpt, setExcerpt] = useState(post?.excerpt ?? "");
   const [content, setContent] = useState(post?.content ?? "");
   const [categoryId, setCategoryId] = useState(String(post?.categoryId ?? ""));
@@ -52,7 +53,7 @@ export function PostForm({ categories, post }: Props) {
     setSaving(true);
     setError("");
 
-    const body = { title, slug, excerpt, content, categoryId: categoryId || null, featuredImage, status: saveStatus };
+    const body = { title, slug, author, excerpt, content, categoryId: categoryId || null, featuredImage, status: saveStatus };
     const url = isEdit ? `/api/posts/${post.id}` : "/api/posts";
     const method = isEdit ? "PUT" : "POST";
 
@@ -116,6 +117,17 @@ export function PostForm({ categories, post }: Props) {
             ))}
           </select>
         </div>
+      </div>
+
+      {/* Author */}
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-medium">Author</label>
+        <input
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
+          placeholder="Author name"
+          className="px-3 py-2 text-sm border border-[var(--color-border)] bg-[var(--color-background)] rounded focus:outline-none focus:ring-2 focus:ring-[var(--color-foreground)] focus:ring-offset-1"
+        />
       </div>
 
       {/* Excerpt */}

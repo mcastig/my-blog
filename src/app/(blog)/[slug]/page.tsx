@@ -61,6 +61,8 @@ export default async function PostPage({ params }: Props) {
           <time dateTime={post.publishedAt?.toISOString()}>
             {format(post.publishedAt ?? post.createdAt, "MMMM d, yyyy")}
           </time>
+          {post.author && <span>·</span>}
+          {post.author && <span>{post.author}</span>}
         </div>
         <h1 className="text-4xl font-bold tracking-tight leading-tight mb-6">
           {post.title}
