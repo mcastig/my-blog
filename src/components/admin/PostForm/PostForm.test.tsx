@@ -29,6 +29,7 @@ const existingPost: Post = {
   slug: "existing-post",
   content: "Some content",
   excerpt: "A short excerpt",
+  author: "Jane Doe",
   categoryId: 1,
   featuredImage: null,
   status: "published",
@@ -319,6 +320,21 @@ describe("PostForm", () => {
       await user.type(imgInput, "/uploads/photo.jpg");
       const preview = document.querySelector("img[alt='Preview']");
       expect(preview).toBeInTheDocument();
+    });
+  });
+
+  describe("author field", () => {
+    it("typing in author updates the field", async () => {
+      const user = userEvent.setup();
+      render(<PostForm categories={categories} />);
+      const authorField = screen.getByPlaceholderText("Author name");
+      await user.type(authorField, "John Smith");
+      expect(authorField).toHaveValue("John Smith");
+    });
+
+    it("renders with pre-filled author in edit mode", () => {
+      render(<PostForm categories={categories} post={existingPost} />);
+      expect(screen.getByPlaceholderText("Author name")).toHaveValue("Jane Doe");
     });
   });
 

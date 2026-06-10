@@ -12,6 +12,7 @@ const basePost: PostWithCategory = {
   slug: "test-post-title",
   content: "Some content here for the post.",
   excerpt: null,
+  author: null,
   categoryId: null,
   featuredImage: null,
   status: "published",
@@ -126,5 +127,16 @@ describe("PostCard", () => {
     const post = { ...basePost, category };
     const { container } = render(<PostCard post={post} />);
     expect(container.textContent).toContain("·");
+  });
+
+  it("renders author name when author is set", () => {
+    const post = { ...basePost, author: "Jane Doe" };
+    render(<PostCard post={post} />);
+    expect(screen.getByText("Jane Doe")).toBeInTheDocument();
+  });
+
+  it("does not render author when author is null", () => {
+    render(<PostCard post={basePost} />);
+    expect(screen.queryByText("Jane Doe")).toBeNull();
   });
 });
