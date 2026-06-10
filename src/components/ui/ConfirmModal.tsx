@@ -22,9 +22,9 @@ export function ConfirmModal({
       <div className="fixed inset-0 z-50 bg-black/40" onClick={onCancel} />
       <div className="fixed inset-0 z-50 flex items-center justify-center px-4 pointer-events-none">
         <div className="pointer-events-auto bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg shadow-xl w-full max-w-sm p-6">
-          <h2 className="text-lg font-bold tracking-tight">{title}</h2>
+          <h2 className="text-lg font-bold tracking-tight text-left">{title}</h2>
           {description && (
-            <p className="mt-2 text-sm text-[var(--color-muted)]">{description}</p>
+            <p className="mt-2 text-sm text-[var(--color-muted)] text-left">{description}</p>
           )}
           <div className="flex gap-2 justify-end mt-6">
             <button
