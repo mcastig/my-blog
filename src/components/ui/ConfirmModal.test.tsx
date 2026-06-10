@@ -55,8 +55,8 @@ describe("ConfirmModal", () => {
   it("calls onCancel when backdrop clicked", () => {
     const onCancel = vi.fn();
     const { container } = render(<ConfirmModal {...defaultProps} onCancel={onCancel} />);
-    // The backdrop is the absolute inset-0 div (first child of outer div)
-    const backdrop = container.querySelector(".absolute.inset-0");
+    // The backdrop is the first fixed inset-0 div (before the dialog)
+    const backdrop = container.querySelector(".fixed.inset-0.bg-black\\/40");
     fireEvent.click(backdrop!);
     expect(onCancel).toHaveBeenCalledOnce();
   });
