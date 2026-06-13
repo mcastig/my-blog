@@ -10,7 +10,7 @@ export default async function NewPostPage() {
   const cats = await db.select().from(categories).orderBy(asc(categories.name));
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div>
       <h1 className="text-2xl font-bold tracking-tight mb-8">New Post</h1>
       <PostForm categories={cats} />
     </div>

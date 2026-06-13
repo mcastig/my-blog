@@ -20,7 +20,7 @@ export default async function EditPostPage({ params }: Props) {
   if (!post[0]) notFound();
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div>
       <h1 className="text-2xl font-bold tracking-tight mb-8">Edit Post</h1>
       <PostForm categories={cats} post={post[0]} />
     </div>
