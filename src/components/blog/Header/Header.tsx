@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ThemeToggle } from "@/components/blog/ThemeToggle/ThemeToggle";
 import { SearchBar } from "@/components/blog/SearchBar/SearchBar";
 import { MobileMenu } from "@/components/blog/MobileMenu/MobileMenu";
+import { CategoryDropdown } from "@/components/blog/CategoryDropdown/CategoryDropdown";
 import { db } from "@/lib/db";
 import { categories } from "@/lib/db/schema";
 
@@ -20,18 +21,8 @@ export async function Header() {
 
         <nav className="flex items-center gap-3">
           {/* Desktop */}
-          <div className="hidden sm:flex items-center gap-5 text-md text-[var(--color-muted)]">
-            {cats.map((cat) => (
-              <Link
-                key={cat.id}
-                href={`/category/${cat.slug}`}
-                className="hover:text-[var(--color-foreground)] transition-colors"
-              >
-                {cat.name}
-              </Link>
-            ))}
-          </div>
-          <div className="hidden sm:block">
+          <div className="hidden sm:flex items-center gap-2">
+            <CategoryDropdown cats={cats} />
             <SearchBar />
           </div>
           <ThemeToggle />
