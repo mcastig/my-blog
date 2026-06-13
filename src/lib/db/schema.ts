@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, text, integer, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, serial, varchar, text, integer, timestamp, type AnyPgColumn } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 export const categories = pgTable("categories", {
@@ -35,6 +35,7 @@ export const adminUsers = pgTable("admin_users", {
 export const comments = pgTable("comments", {
   id: serial("id").primaryKey(),
   postId: integer("post_id").notNull().references(() => posts.id, { onDelete: "cascade" }),
+  parentCommentId: integer("parent_comment_id").references((): AnyPgColumn => comments.id, { onDelete: "cascade" }),
   authorName: varchar("author_name", { length: 100 }).notNull(),
   email: varchar("email", { length: 255 }),
   content: text("content").notNull(),
@@ -47,8 +48,10 @@ export const postsRelations = relations(posts, ({ one, many }) => ({
   comments: many(comments),
 }));
 
-export const commentsRelations = relations(comments, ({ one }) => ({
+export const commentsRelations = relations(comments, ({ one, many }) => ({
   post: one(posts, { fields: [comments.postId], references: [posts.id] }),
+  parent: one(comments, { fields: [comments.parentCommentId], references: [comments.id], relationName: "replies" }),
+  replies: many(comments, { relationName: "replies" }),
 }));
 
 export const categoriesRelations = relations(categories, ({ many }) => ({

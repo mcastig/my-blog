@@ -7,6 +7,7 @@ import type { Comment } from "@/lib/db/schema";
 const baseComment: Comment = {
   id: 1,
   postId: 10,
+  parentCommentId: null,
   authorName: "Alice",
   email: null,
   content: "Great post!",
@@ -45,6 +46,36 @@ describe("CommentSection", () => {
     it("renders formatted date for each comment", () => {
       render(<CommentSection postId={10} initialComments={[baseComment]} />);
       expect(screen.getByText("March 1, 2024")).toBeInTheDocument();
+    });
+
+    it("renders a Reply button for each top-level comment", () => {
+      render(<CommentSection postId={10} initialComments={[baseComment]} />);
+      expect(screen.getByRole("button", { name: "Reply" })).toBeInTheDocument();
+    });
+
+    it("does not render Reply button for replies", () => {
+      const reply: Comment = { ...baseComment, id: 2, parentCommentId: 1, content: "Thanks!" };
+      render(<CommentSection postId={10} initialComments={[baseComment, reply]} />);
+      // Only one "Reply" button for the top-level comment
+      expect(screen.getAllByRole("button", { name: "Reply" })).toHaveLength(1);
+    });
+
+    it("shows indented replies under their parent comment", () => {
+      const reply: Comment = {
+        ...baseComment,
+        id: 2,
+        parentCommentId: 1,
+        authorName: "Bob",
+        content: "Thanks Alice!",
+      };
+      render(<CommentSection postId={10} initialComments={[baseComment, reply]} />);
+      expect(screen.getByText("Thanks Alice!")).toBeInTheDocument();
+    });
+
+    it("counts replies in the comment total", () => {
+      const reply: Comment = { ...baseComment, id: 2, parentCommentId: 1 };
+      render(<CommentSection postId={10} initialComments={[baseComment, reply]} />);
+      expect(screen.getByRole("heading", { name: "2 Comments" })).toBeInTheDocument();
     });
   });
 
@@ -127,6 +158,7 @@ describe("CommentSection", () => {
         expect(body.postId).toBe(10);
         expect(body.authorName).toBe("Bob");
         expect(body.content).toBe("Hello");
+        expect(body.parentCommentId).toBeNull();
       });
     });
 
@@ -196,6 +228,87 @@ describe("CommentSection", () => {
 
       await waitFor(() => {
         expect(screen.getByText("Failed to post comment")).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe("reply feature", () => {
+    it("shows inline reply form when Reply is clicked", async () => {
+      const user = userEvent.setup();
+      render(<CommentSection postId={10} initialComments={[baseComment]} />);
+      await user.click(screen.getByRole("button", { name: "Reply" }));
+      expect(screen.getByPlaceholderText("Write a reply…")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Post reply" })).toBeInTheDocument();
+    });
+
+    it("hides reply form when Cancel is clicked", async () => {
+      const user = userEvent.setup();
+      render(<CommentSection postId={10} initialComments={[baseComment]} />);
+      await user.click(screen.getByRole("button", { name: "Reply" }));
+      await user.click(screen.getByRole("button", { name: "Cancel" }));
+      expect(screen.queryByPlaceholderText("Write a reply…")).not.toBeInTheDocument();
+    });
+
+    it("hides reply form when 'Cancel reply' is clicked on the comment", async () => {
+      const user = userEvent.setup();
+      render(<CommentSection postId={10} initialComments={[baseComment]} />);
+      await user.click(screen.getByRole("button", { name: "Reply" }));
+      expect(screen.getByRole("button", { name: "Cancel reply" })).toBeInTheDocument();
+      await user.click(screen.getByRole("button", { name: "Cancel reply" }));
+      expect(screen.queryByPlaceholderText("Write a reply…")).not.toBeInTheDocument();
+    });
+
+    it("POSTs reply with correct parentCommentId", async () => {
+      const user = userEvent.setup();
+      const replyComment: Comment = {
+        ...baseComment,
+        id: 5,
+        parentCommentId: 1,
+        authorName: "Bob",
+        content: "Thanks!",
+      };
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => replyComment,
+      });
+
+      render(<CommentSection postId={10} initialComments={[baseComment]} />);
+      await user.click(screen.getByRole("button", { name: "Reply" }));
+      await user.type(screen.getAllByPlaceholderText("Your name")[0], "Bob");
+      await user.type(screen.getByPlaceholderText("Write a reply…"), "Thanks!");
+      await user.click(screen.getByRole("button", { name: "Post reply" }));
+
+      await waitFor(() => {
+        const call = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+        const body = JSON.parse(call[1].body);
+        expect(body.parentCommentId).toBe(1);
+        expect(body.content).toBe("Thanks!");
+      });
+    });
+
+    it("shows reply in thread and closes form after posting", async () => {
+      const user = userEvent.setup();
+      const replyComment: Comment = {
+        ...baseComment,
+        id: 5,
+        parentCommentId: 1,
+        authorName: "Bob",
+        content: "Thanks!",
+      };
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => replyComment,
+      });
+
+      render(<CommentSection postId={10} initialComments={[baseComment]} />);
+      await user.click(screen.getByRole("button", { name: "Reply" }));
+      await user.type(screen.getAllByPlaceholderText("Your name")[0], "Bob");
+      await user.type(screen.getByPlaceholderText("Write a reply…"), "Thanks!");
+      await user.click(screen.getByRole("button", { name: "Post reply" }));
+
+      await waitFor(() => {
+        expect(screen.getByText("Thanks!")).toBeInTheDocument();
+        expect(screen.queryByPlaceholderText("Write a reply…")).not.toBeInTheDocument();
       });
     });
   });
