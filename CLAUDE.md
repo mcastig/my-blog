@@ -34,10 +34,10 @@ src/
   app/
     (blog)/          ← public routes (homepage, post, category, search)
     admin/           ← protected by src/proxy.ts; login at /admin/login
-    api/             ← REST handlers (auth, posts CRUD, upload, categories, search)
+    api/             ← REST handlers (auth, posts CRUD, upload, categories, search, comments)
   components/
     blog/            ← Header (async Server Component), Footer, PostCard, PostContent,
-    |                   SearchBar, MobileMenu, ThemeToggle
+    |                   SearchBar, MobileMenu, ThemeToggle, CategoryDropdown, CommentSection
     admin/           ← AdminNav, PostForm (markdown editor + preview), CategoryManager,
     |                   DeletePostButton, ProfileMenu
     providers/       ← ThemeProvider (custom dark/light/system implementation)
@@ -46,7 +46,7 @@ src/
     auth.ts          ← signToken / verifyToken / getSession (cookie: blog_token)
     db/
       index.ts       ← drizzle(neon(...)) instance
-      schema.ts      ← posts, categories, admin_users tables + Drizzle relations
+      schema.ts      ← posts, categories, admin_users, comments tables + Drizzle relations
   proxy.ts           ← route guard — redirects unauthenticated /admin/* to /admin/login
 ```
 
@@ -56,11 +56,13 @@ src/
 - **Post editor** (`PostForm.tsx`): client component with a markdown textarea + live preview toggle. Calls `/api/posts` (POST) or `/api/posts/[id]` (PUT). Images uploaded via `/api/upload` → saved in `public/uploads/`.
 - **Dark mode**: `globals.css` defines CSS custom properties under `:root` and `.dark {}`. Tailwind `@variant dark` maps to `.dark *` so all `dark:` utilities work. Do **not** use `@media (prefers-color-scheme)` — the custom `ThemeProvider` manages this by toggling the `.dark` class on `<html>`.
 - **Revalidation**: public blog pages use `export const revalidate = 60`.
+- **Comments & replies**: `CommentSection` is a client component rendered at the bottom of each post. Comments are stored flat with a nullable `parentCommentId` self-reference (cascade delete). `GET /api/comments?postId=X` returns all approved comments in ASC order; the client groups them into top-level + threaded replies. `POST /api/comments` accepts an optional `parentCommentId`; the API validates the parent belongs to the same post.
+- **Category dropdown**: `CategoryDropdown` is a client component in the desktop navbar (left of search). It receives categories from the `Header` server component. Closes on outside click, Escape, and route change.
 
 ## Database
 
 Neon project: `bold-meadow-25623294` (aws-us-west-2).  
-Tables: `categories`, `posts`, `admin_users`.  
+Tables: `categories`, `posts`, `admin_users`, `comments`.  
 Connection string is in `.env.local` (`DATABASE_URL`).
 
 ### Change the admin password

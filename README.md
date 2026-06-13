@@ -1,12 +1,15 @@
 # My Blog
 
-A full-stack personal blog built with Next.js 16 App Router, featuring a markdown editor, category management, image uploads, dark/light mode, and a protected admin panel.
+A full-stack personal blog built with Next.js 16 App Router, featuring a markdown editor, category management, image uploads, threaded comments, dark/light mode, and a protected admin panel.
 
 ## Features
 
 - **Public blog** — homepage, per-post pages, category filtering, full-text search
+- **Threaded comments** — readers can comment on posts and reply to top-level comments; replies are nested under their parent with a left-border thread indicator
+- **Category dropdown** — navbar dropdown lists all categories for quick navigation; replaces flat links on desktop
 - **Admin panel** — create, edit, and delete posts with a live markdown preview editor
 - **Categories** — create and manage categories with inline editing
+- **Comment moderation** — view and delete all comments from the admin panel
 - **Image uploads** — upload images directly from the post editor (stored in `public/uploads/`)
 - **Dark/light/system mode** — persists to localStorage, no flash on load
 - **Auth** — JWT stored in an `httpOnly` cookie; all `/admin` routes are proxy-guarded
@@ -82,16 +85,17 @@ Open [http://localhost:3000](http://localhost:3000) for the blog and [http://loc
 src/
   app/
     (blog)/      public routes — homepage, post, category, search
-    admin/       protected admin panel (posts, categories, login)
-    api/         REST endpoints — auth, posts, categories, upload, search
+    admin/       protected admin panel (posts, categories, comments, login)
+    api/         REST endpoints — auth, posts, categories, comments, upload, search
   components/
-    blog/        Header, Footer, PostCard, PostContent, SearchBar, MobileMenu, ThemeToggle
+    blog/        Header, Footer, PostCard, PostContent, SearchBar, MobileMenu,
+                 ThemeToggle, CategoryDropdown, CommentSection
     admin/       AdminNav, PostForm, CategoryManager, DeletePostButton, ProfileMenu
     providers/   ThemeProvider
     ui/          ConfirmModal
   lib/
     auth.ts      JWT helpers and session reading
-    db/          Drizzle instance and schema
+    db/          Drizzle instance and schema (posts, categories, admin_users, comments)
   proxy.ts       Route guard for /admin/*
 ```
 
